@@ -6,3 +6,13 @@ export interface Country {
     
 
 }
+
+export interface City {
+    cityid: number;
+    latitude: number;
+    longitude: number;
+    countryId: number;
+    name: string;
+    population: number;
+    country: string;
+}
