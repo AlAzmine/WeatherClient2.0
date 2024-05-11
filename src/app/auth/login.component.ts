@@ -5,6 +5,8 @@ import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from './auth.service';
 import { LoginRequest } from './login-request';
+import { LoginResult } from './login-result';
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -13,6 +15,8 @@ import { LoginRequest } from './login-request';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
+  loginResult!: LoginResult;
+  form!: UntypedFormGroup;
   constructor(private authService: AuthService, private router: Router) {
 
   } 
@@ -22,7 +26,8 @@ export class LoginComponent implements OnInit {
     password: new FormControl("", Validators.required)
   });
  }
- form!: UntypedFormGroup;
+ 
+ 
 
  onSubmit() {
   let loginRequest: LoginRequest =<LoginRequest> {
@@ -32,10 +37,22 @@ export class LoginComponent implements OnInit {
   }; 
   this.authService.login(loginRequest).subscribe (
     {
-      next: result => {console.log(result.message);
-        this.router.navigate(["/"]);
+      next: result => {
+        console.log(result.message);
+        this.loginResult = result;
+        if(result.success){
+          localStorage.setItem(this.authService.tokenKey,result.token);
+          this.router.navigate(["/"]);
+        }
+       
       },
-      error : error => console.error(error)
+      error : error => {
+        console.error(error)
+        if(error.status == 401)
+          {
+            loginRequest = error.error;
+          }
+      }
     }
   )
  }
